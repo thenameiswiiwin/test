@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react'
 
 const pokemonQuery = `
-  {
-    pokemon(name: "charizard") {
-      id
-      number
-      name
-      image
-      attacks {
-        special {
-          name
-          type
-          damage
+query PokemonInfo($name: String) {
+      pokemon(name: $name) {
+        id
+        number
+        name
+        image
+        attacks {
+          special {
+            name
+            type
+            damage
+          }
         }
       }
     }
-  }
 `
 
-function PokemonInfo() {
+function PokemonInfo({ pokemonName }) {
   const [pokemon, setPokemon] = useState(null)
 
   useEffect(() => {
@@ -27,13 +27,15 @@ function PokemonInfo() {
         method: 'POST',
         headers: {
           'content-type': 'application/json;charset=UTF-8',
-          delay: 1500
         },
-        body: JSON.stringify({ query: pokemonQuery })
+        body: JSON.stringify({
+          query: pokemonQuery,
+          variables: {name: pokemonName.toLowerCase()}
+        })
       })
       .then((res) => res.json())
       .then((data) => setPokemon(data.data.pokemon))
-  }, [])
+  }, [pokemonName])
 
   return (
     <div className="h-full flex flex-col items-center">
@@ -117,7 +119,7 @@ function App() {
       <hr className="my-7" />
 
       <div className="h-96 w-72 bg-zinc-100 rounded overflow-auto p-5">
-        <PokemonInfo />
+        <PokemonInfo pokemonName={pokemonName} />
       </div>
     </div>
   )
