@@ -1,28 +1,64 @@
 import { useState, useEffect } from 'react'
-import Charizard from '../assets/charizard.jpg'
+
+const pokemonQuery = `
+  {
+    pokemon(name: "charizard") {
+      id
+      number
+      name
+      image
+      attacks {
+        special {
+          name
+          type
+          damage
+        }
+      }
+    }
+  }
+`
 
 function PokemonInfo() {
+  const [pokemon, setPokemon] = useState(null)
+
+  useEffect(() => {
+    window
+      .fetch('https://graphql-pokemon2.vercel.app/', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json;charset=UTF-8',
+          delay: 1500
+        },
+        body: JSON.stringify({ query: pokemonQuery })
+      })
+      .then((res) => res.json())
+      .then((data) => setPokemon(data.data.pokemon))
+  }, [])
+
   return (
     <div className="h-full flex flex-col items-center">
-      <section className="mb-4">
-        <small className="mb-1 float-right">10:08 50.405</small>
-        <img src={Charizard} alt="charizard" />
+      <section className="mb-4 flex flex-col justify-center">
+        <small className="mb-1 self-end">10:08 50.405</small>
+        <img
+          className="max-w-full max-h-48"
+          src={pokemon.image}
+          alt={pokemon.name}
+        />
         <h2 className="mt-2 text-center text-2xl font-extrabold">
-          Charizard
-          <sup>006</sup>
+          {pokemon.name}
+          <sup>{pokemon.number}</sup>
         </h2>
       </section>
       <section>
         <ul className="leading-none list-disc">
-          <li>
-            Dragon Claw: 35 <small>(Dragon)</small>
-          </li>
-          <li>
-            Fire Blast: 100 <small>(Fire)</small>
-          </li>
-          <li>
-            Flamethrower: 55 <small>(Fire)</small>
-          </li>
+          {pokemon.attacks.special.map((attack) => (
+            <li key={attack.name}>
+              <label>{attack.name}</label>:{' '}
+              <span>
+                {attack.damage} <small>({attack.type})</small>
+              </span>
+            </li>
+          ))}
         </ul>
       </section>
     </div>
