@@ -96,9 +96,7 @@ function PokemonInfo({ pokemonName }) {
   }
 }
 
-function App() {
-  const [pokemonName, setPokemonName] = useState('')
-
+function PokemonForum({ pokemonName, setPokemonName }) {
   const handleChange = (e) => setPokemonName(e.target.value)
 
   const handleSubmit = (e) => {
@@ -109,43 +107,51 @@ function App() {
   const handleSelect = (pokemonName) => setPokemonName(pokemonName)
 
   return (
+    <form
+      className="flex flex-col jutify-center items-center"
+      onSubmit={handleSubmit}
+    >
+      <label htmlFor="pokemonName-input">Pokemon Name</label>
+      <small>
+        Try{' '}
+        <button type="button" onClick={() => handleSelect('pikachu')}>
+          "pikachu"
+        </button>
+        {', '}
+        <button type="button" onClick={() => handleSelect('charizard')}>
+          "charizard"
+        </button>
+        {', or '}
+        <button type="button" onClick={() => handleSelect('mew')}>
+          "mew"
+        </button>
+      </small>
+      <div>
+        <input
+          className="mt-2.5 mr-2.5 px-2.5 leading-loose rounded-sm box shadow-md bg-zinc-100"
+          name="pokemonName"
+          placeholder="Pokemon Name..."
+          value={pokemonName}
+          onChange={handleChange}
+        />
+        <button
+          className="py-1.5 px-2.5 border border-solid rounded-md bg-red-600 text-white hover:bg-red-700 disabled:bg-red-700"
+          type="submit"
+          disabled={!pokemonName.length}
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function App() {
+  const [pokemonName, setPokemonName] = useState('')
+
+  return (
     <div className="flex flex-col justify-center items-center mt-14 font-semibold">
-      <form
-        className="flex flex-col jutify-center items-center"
-        onSubmit={handleSubmit}
-      >
-        <label htmlFor="pokemonName-input">Pokemon Name</label>
-        <small>
-          Try{' '}
-          <button type="button" onClick={() => handleSelect('pikachu')}>
-            "pikachu"
-          </button>
-          {', '}
-          <button type="button" onClick={() => handleSelect('charizard')}>
-            "charizard"
-          </button>
-          {', or '}
-          <button type="button" onClick={() => handleSelect('mew')}>
-            "mew"
-          </button>
-        </small>
-        <div>
-          <input
-            className="mt-2.5 mr-2.5 px-2.5 leading-loose rounded-sm box shadow-md bg-zinc-100"
-            name="pokemonName"
-            placeholder="Pokemon Name..."
-            value={pokemonName}
-            onChange={handleChange}
-          />
-          <button
-            className="py-1.5 px-2.5 border border-solid rounded-md bg-red-600 text-white hover:bg-red-700 disabled:bg-red-700"
-            type="submit"
-            disabled={!pokemonName.length}
-          >
-            Submit
-          </button>
-        </div>
-      </form>
+      <PokemonForum pokemonName={pokemonName} setPokemonName={setPokemonName} />
       <hr className="my-7" />
       <div className="h-96 w-72 bg-zinc-100 rounded overflow-auto p-5">
         <PokemonInfo pokemonName={pokemonName} />
