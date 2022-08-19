@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
 
+const formatDate = date =>
+  `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')} ${String(
+    date.getSeconds(),
+  ).padStart(2, '0')}.${String(date.getMilliseconds()).padStart(3, '0')}`
+
 function fetchPokemon(name) {
   const pokemonQuery = `
     query PokemonInfo($name: String){
@@ -33,6 +38,7 @@ function fetchPokemon(name) {
       if (res.ok) {
         const pokemon = data?.pokemon
         if (pokemon) {
+          pokemon.fetchedAt = formatDate(new Date())
           return pokemon
         } else {
           return Promise.reject(new Error(`No pokemon with the name "${name}"`))
@@ -60,7 +66,7 @@ function PokemonInfo({ pokemonName }) {
     return (
       <div className="h-full flex flex-col items-center">
         <section className="mb-4 flex flex-col justify-center">
-          <small className="mb-1 self-end">10:08 50.405</small>
+          <small className="mb-1 self-end">{pokemon.fetchedAt}</small>
           <img
             className="max-w-full max-h-52"
             src={pokemon.image}
