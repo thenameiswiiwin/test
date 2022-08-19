@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 
-const pokemonQuery = `
-query PokemonInfo($name: String) {
+function fetchPokemon(name) {
+  const pokemonQuery = `
+    query PokemonInfo($name: String){
       pokemon(name: $name) {
         id
         number
@@ -16,65 +17,71 @@ query PokemonInfo($name: String) {
         }
       }
     }
-`
+  `
+
+  return window
+    .fetch('https://graphql-pokemon2.vercel.app/', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json;charset=UTF-8' },
+      body: JSON.stringify({
+        query: pokemonQuery,
+        variables: { name: name.toLowerCase() }
+      })
+    })
+    .then(async (res) => await res.json())
+}
 
 function PokemonInfo({ pokemonName }) {
   const [pokemon, setPokemon] = useState(null)
 
   useEffect(() => {
-    window
-      .fetch('https://graphql-pokemon2.vercel.app/', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json;charset=UTF-8',
-        },
-        body: JSON.stringify({
-          query: pokemonQuery,
-          variables: {name: pokemonName.toLowerCase()}
-        })
-      })
-      .then((res) => res.json())
-      .then((data) => setPokemon(data.data.pokemon))
+    fetchPokemon(pokemonName).then((data) => setPokemon(data.data.pokemon))
   }, [pokemonName])
 
-  return (
-    <div className="h-full flex flex-col items-center">
-      <section className="mb-4 flex flex-col justify-center">
-        <small className="mb-1 self-end">10:08 50.405</small>
-        <img
-          className="max-w-full max-h-48"
-          src={pokemon.image}
-          alt={pokemon.name}
-        />
-        <h2 className="mt-2 text-center text-2xl font-extrabold">
-          {pokemon.name}
-          <sup>{pokemon.number}</sup>
-        </h2>
-      </section>
-      <section>
-        <ul className="leading-none list-disc">
-          {pokemon.attacks.special.map((attack) => (
-            <li key={attack.name}>
-              <label>{attack.name}</label>:{' '}
-              <span>
-                {attack.damage} <small>({attack.type})</small>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
-  )
+  if (!pokemonName) {
+    return 'Submit a pokemon'
+  } else {
+    return (
+      <div className="h-full flex flex-col items-center">
+        <section className="mb-4 flex flex-col justify-center">
+          <small className="mb-1 self-end">10:08 50.405</small>
+          <img
+            className="max-w-full max-h-52"
+            src={pokemon.image}
+            alt={pokemon.name}
+          />
+          <h2 className="mt-2 text-center text-2xl font-extrabold">
+            {pokemon.name}
+            <sup>{pokemon.number}</sup>
+          </h2>
+        </section>
+        <section>
+          <ul className="leading-none list-disc">
+            {pokemon.attacks.special.map((attack) => (
+              <li key={attack.name}>
+                <label>{attack.name}</label>:{' '}
+                <span>
+                  {attack.damage} <small>({attack.type})</small>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    )
+  }
 }
 
 function App() {
   const [pokemonName, setPokemonName] = useState('')
 
   const handleChange = (e) => setPokemonName(e.target.value)
+
   const handleSubmit = (e) => {
     e.preventDefault()
     setPokemonName(pokemonName)
   }
+
   const handleSelect = (pokemonName) => setPokemonName(pokemonName)
 
   return (
