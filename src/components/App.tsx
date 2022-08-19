@@ -28,14 +28,30 @@ function fetchPokemon(name) {
         variables: { name: name.toLowerCase() }
       })
     })
-    .then(async (res) => await res.json())
+    .then(async (res) => {
+      const { data } = await res.json()
+      if (res.ok) {
+        const pokemon = data?.pokemon
+        if (pokemon) {
+          return pokemon
+        } else {
+          return Promise.reject(new Error(`No pokemon with the name "${name}"`))
+        }
+      } else {
+        // handle the graphql errors
+        const error = {
+          message: data?.errors?.map((e) => e.message).join('\n')
+        }
+        return Promise.reject(error)
+      }
+    })
 }
 
 function PokemonInfo({ pokemonName }) {
   const [pokemon, setPokemon] = useState(null)
 
   useEffect(() => {
-    fetchPokemon(pokemonName).then((data) => setPokemon(data.data.pokemon))
+    fetchPokemon(pokemonName).then((pokemon) => setPokemon(pokemon))
   }, [pokemonName])
 
   if (!pokemonName) {
