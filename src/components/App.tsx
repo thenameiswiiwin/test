@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-const formatDate = date =>
+const formatDate = (date) =>
   `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')} ${String(
-    date.getSeconds(),
+    date.getSeconds()
   ).padStart(2, '0')}.${String(date.getMilliseconds()).padStart(3, '0')}`
 
 function fetchPokemon(name) {
@@ -57,12 +57,14 @@ function PokemonInfo({ pokemonName }) {
   const [pokemon, setPokemon] = useState(null)
 
   useEffect(() => {
+    if (!pokemonName) return
+    setPokemon(null)
     fetchPokemon(pokemonName).then((pokemon) => setPokemon(pokemon))
   }, [pokemonName])
 
   if (!pokemonName) {
     return 'Submit a pokemon'
-  } else {
+  } else if (pokemon) {
     return (
       <div className="h-full flex flex-col items-center">
         <section className="mb-4 flex flex-col justify-center">
@@ -144,9 +146,7 @@ function App() {
           </button>
         </div>
       </form>
-
       <hr className="my-7" />
-
       <div className="h-96 w-72 bg-zinc-100 rounded overflow-auto p-5">
         <PokemonInfo pokemonName={pokemonName} />
       </div>
